@@ -1,55 +1,59 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// Manages Emily's quest: Find Ava first, then find Mom and Dad
-// Add to an empty GameObject called "StoryManager"
-// Drag the story Text UI into storyText
+// Emily's quest stages:
+// Intro (ship movie) -> FindAva -> FindParents -> Rescue (ship + house) -> Victory!
+// Add to an empty GameObject called "StoryManager".
+// Drag the story Text UI into storyText, and the EndingDirector into ending.
 public class StoryManager : MonoBehaviour
 {
     public static StoryManager Instance;
 
     public Text storyText;
+    public RescueEnding ending;
 
-    private int stage = 0; // 0 = find Ava, 1 = find parents, 2 = won!
+    // -1 = intro movie playing, 0 = find Ava, 1 = find parents, 2 = ending, 3 = victory!
+    private int stage = -1;
 
     void Awake()
     {
         Instance = this;
     }
 
-    void Start()
+    // Called by ShipIntro when the opening movie finishes
+    public void BeginSearch()
     {
-        ShowStory("Hi! I'm Emily! Follow the twinkly fireflies to find my big sister Ava in the cave behind the waterfall!");
+        stage = 0;
+        ShowStory("Follow the twinkly fireflies to find Ava in the cave behind the waterfall! Watch out for tigers and snakes - wave your fire stick with F!");
     }
 
     public void FoundAva()
     {
         if (stage != 0) return;
         stage = 1;
-        ShowStory("Yay! You found Ava! She hugs you tight. Now together, follow the clues to find Mommy and Daddy in the dark forest!");
+        ShowStory("Yay! You found Ava! She hugs you tight. Now find the 3 clues to find Mommy and Daddy!");
     }
 
     public void FoundParents()
     {
         if (stage != 1) return;
         stage = 2;
-        ShowStory("You did it! Emily and Ava found Mommy and Daddy! The whole family is together again. The end!");
+        ShowStory("The family is together again! Look... a ship!");
+        if (ending != null) ending.PlayEnding();
     }
 
-    public bool IsLookingForAva()
+    public void ShowVictory()
     {
-        return stage == 0;
+        stage = 3;
+        ShowStory("VICTORY! The ship brought Emily's family home safe!");
     }
 
-    public bool IsLookingForParents()
-    {
-        return stage == 1;
-    }
+    public bool IsLookingForAva() => stage == 0;
+    public bool IsLookingForParents() => stage == 1;
 
-    void ShowStory(string message)
+    public void ShowStory(string message)
     {
-        if (storyText != null)
-            storyText.text = message;
+        if (storyText != null) storyText.text = message;
         Debug.Log(message);
     }
 }
